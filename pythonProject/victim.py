@@ -1,9 +1,15 @@
 import socket
 import subprocess
+from Utils.argument_parser import victim_parse_arguments
 
-def start_server(host='127.0.0.1', port=65433):
+
+def start_server(host='192.168.1.78', port=65433):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((host, port))
+    try:
+        server_socket.bind((host, port))
+    except Exception as e:
+        print(f"Error binding to {host}:{port}: {e}")
+        return False
     server_socket.listen(5)  # Allows multiple connection attempts
     print(f"Server listening on {host}:{port}")
 
@@ -14,7 +20,6 @@ def start_server(host='127.0.0.1', port=65433):
             handle_client(conn, addr)
         except Exception as e:
             print(f"Error with connection: {e}")
-
 def handle_client(conn, addr):
     try:
         data = conn.recv(1024).decode('utf-8')
@@ -37,5 +42,8 @@ def handle_client(conn, addr):
     finally:
         conn.close()
 
+
 if __name__ == '__main__':
-    start_server()
+    server_ip, server_port = victim_parse_arguments()
+    start_server(host=server_ip, port=server_port)
+
